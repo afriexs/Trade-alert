@@ -12,6 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: pip install -r requirements.txt
+      - run: pip install -r requirements.py
 
       - run: python src/send_alerts.py
