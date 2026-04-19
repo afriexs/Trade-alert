@@ -41,40 +41,48 @@ def update_crypto():
 
 # ---------------- STOCKS ----------------
 def update_stocks():
+    import requests
+
+    # Strong list (global + Nigerian interest)
     symbols = [
-        "aapl.us","tsla.us","msft.us","amzn.us","nvda.us",
-        "meta.us","googl.us","nflx.us","intel.us","amd.us"
+        "AAPL","TSLA","MSFT","AMZN","NVDA",
+        "META","GOOGL","NFLX","INTC","AMD",
+        "BABA","SHOP","UBER","PYPL","V",
+        "MA","JPM","WMT","DIS","KO",
+        "PEP","PFE","MRNA","XOM","CVX",
+        "BA","GM","F","SNAP","T",
+        "VZ","ADBE","CRM","ORCL","IBM",
+        "SQ","COIN","ROKU"
     ]
+
+    url = "https://query1.finance.yahoo.com/v7/finance/quote"
 
     stock_data = {}
 
-    for i in range(0, len(symbols), 5):
-        chunk = ",".join(symbols[i:i+5])
-        url = f"https://stooq.com/q/l/?s={chunk}&f=sd2t2ohlcv&h&e=json"
+    try:
+        response = requests.get(url, params={
+            "symbols": ",".join(symbols)
+        }).json()
 
-        try:
-            res = requests.get(url).json()
+        results = response.get("quoteResponse", {}).get("result", [])
 
-            # DEBUG: print raw response if empty
-            if "symbols" not in res:
-                print("⚠️ Invalid response:", res)
-                continue
+        for item in results:
+            symbol = item.get("symbol")
+            price = item.get("regularMarketPrice")
 
-            for item in res["symbols"]:
-                symbol = item.get("symbol", "").split(".")[0].upper()
-                price = item.get("close")
+            if symbol and price:
+                stock_data[symbol] = float(price)
 
-                # Validate price
-                if price and price != "N/D":
-                    stock_data[symbol] = float(price)
+    except Exception as e:
+        print("❌ Yahoo error:", e)
 
-        except Exception as e:
-            print("❌ Error:", e)
-
-    print("📊 Stocks collected:", len(stock_data))  # DEBUG
+    # Safety check
+    if not stock_data:
+        print("⚠️ No stock data retrieved — skipping save")
+        return
 
     save_json("data/stocks.json", stock_data)
-
+    print(f"✅ Stocks saved: {len(stock_data)}")
 
 # ---------------- RUN ----------------
 update_forex()
