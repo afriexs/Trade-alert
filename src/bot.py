@@ -4,6 +4,8 @@ from ui import main_menu, asset_menu, upgrade_menu
 from appwrite_client import db
 import config, time
 import traceback
+import sys
+print("BOT STARTING...", flush=True)
 
 try:
 
