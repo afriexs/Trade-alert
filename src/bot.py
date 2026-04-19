@@ -5,99 +5,113 @@ from appwrite_client import db
 import config, time
 import traceback
 import sys
+
+print("BOT STARTING...", flush=True)
+
+# ---------------- OPTIONAL PORT SERVER (KEEP FOR RENDER) ----------------
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
 
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Bot is running")
+
 def run_server():
-    server = HTTPServer(("0.0.0.0", 10000), BaseHTTPRequestHandler)
+    server = HTTPServer(("0.0.0.0", 10000), Handler)
     server.serve_forever()
 
-threading.Thread(target=run_server).start()
-print("BOT STARTING...", flush=True)
+threading.Thread(target=run_server, daemon=True).start()
 
 
-try:
+# ---------------- INIT BOT ----------------
+updater = Updater(config.TELEGRAM_TOKEN, use_context=True)
+dp = updater.dispatcher
 
-    updater = Updater(config.TELEGRAM_TOKEN, use_context=True)
-    dp = updater.dispatcher
-    updater.start_polling(drop_pending_updates=True)
 
-    # START
-    def start(update, context):
-        chat_id = str(update.message.chat_id)
+# ---------------- START COMMAND ----------------
+def start(update, context):
+    chat_id = str(update.message.chat_id)
 
-        # Try to create user if not exists
-        try:
-            db.get_document(
-                database_id=config.APPWRITE_DB,
-                collection_id=config.APPWRITE_COLLECTION,
-                document_id=chat_id
-            )
-        except:
-            db.create_document(
-                database_id=config.APPWRITE_DB,
-                collection_id=config.APPWRITE_COLLECTION,
-                document_id=chat_id,
-                data={
-                    "chat_id": chat_id,
-                    "plan": "free",
-                    "expires_at": 0,
-                    "amount": 10000,
-                    "assets": [],
-                    "reference_prices": {},
-                    "threshold": 0.01,
-                    "interval": 60
-                }
-            )
-
-        # Handle payment activation
-        args = context.args
-        if args and args[0].startswith("paid_"):
-            db.update_document(
-                database_id=config.APPWRITE_DB,
-                collection_id=config.APPWRITE_COLLECTION,
-                document_id=chat_id,
-                data={
-                    "plan": "standard",
-                    "expires_at": int(time.time()) + (30 * 86400)
-                }
-            )
-
-            update.message.reply_text("✅ Subscription activated!")
-
-        # Show UI
-        update.message.reply_text(
-            "Welcome 👋\n\nTrack market moves easily.",
-            reply_markup=main_menu()
+    try:
+        db.get_document(
+            database_id=config.APPWRITE_DB,
+            collection_id=config.APPWRITE_COLLECTION,
+            document_id=chat_id
+        )
+    except:
+        db.create_document(
+            database_id=config.APPWRITE_DB,
+            collection_id=config.APPWRITE_COLLECTION,
+            document_id=chat_id,
+            data={
+                "chat_id": chat_id,
+                "plan": "free",
+                "expires_at": 0,
+                "amount": 10000,
+                "assets": [],
+                "reference_prices": {},
+                "threshold": 0.01,
+                "interval": 60
+            }
         )
 
+    args = context.args
 
-    # BUTTON HANDLER
-    def button(update, context):
-        query = update.callback_query
-        query.answer()
+    if args and args[0].startswith("paid_"):
+        db.update_document(
+            database_id=config.APPWRITE_DB,
+            collection_id=config.APPWRITE_COLLECTION,
+            document_id=chat_id,
+            data={
+                "plan": "standard",
+                "expires_at": int(time.time()) + (30 * 86400)
+            }
+        )
+        update.message.reply_text("✅ Subscription activated!")
 
-        if query.data == "select_assets":
-            query.edit_message_text("Select assets:", reply_markup=asset_menu())
-
-        elif query.data == "upgrade":
-            query.edit_message_text("Upgrade your plan:", reply_markup=upgrade_menu())
-
-        elif query.data == "settings":
-            query.edit_message_text("⚙ Settings coming soon")
-
-        elif query.data == "check_rate":
-            query.edit_message_text("Enter /check BTC")
+    update.message.reply_text(
+        "Welcome 👋\n\nTrack market moves easily.",
+        reply_markup=main_menu()
+    )
 
 
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CallbackQueryHandler(button))
+# ---------------- BUTTON HANDLER ----------------
+def button(update, context):
+    query = update.callback_query
+    query.answer()
 
-    # ALL your bot code here
-    updater.start_polling()
+    if query.data == "select_assets":
+        query.edit_message_text("Select assets:", reply_markup=asset_menu())
+
+    elif query.data == "upgrade":
+        query.edit_message_text("Upgrade your plan:", reply_markup=upgrade_menu())
+
+    elif query.data == "settings":
+        query.edit_message_text("⚙ Settings coming soon")
+
+    elif query.data == "check_rate":
+        query.edit_message_text("Enter /check BTC")
+
+
+# ---------------- ERROR HANDLER ----------------
+def error_handler(update, context):
+    print("ERROR:", traceback.format_exc(), flush=True)
+
+
+# ---------------- REGISTER HANDLERS ----------------
+dp.add_handler(CommandHandler("start", start))
+dp.add_handler(CallbackQueryHandler(button))
+
+dp.add_error_handler(error_handler)
+
+
+# ---------------- START BOT SAFELY ----------------
+try:
+    updater.start_polling(drop_pending_updates=True)
     updater.idle()
 
-
-except Exception as e:
+except Exception:
     print("CRASH ERROR:")
-    print(traceback.format_exc())
+    print(traceback.format_exc(), flush=True)
