@@ -38,52 +38,6 @@ def update_crypto():
 
     save_json("data/crypto.json", crypto_data)
 
-
-# ---------------- STOCKS ----------------
-def update_stocks():
-
-    # Strong list (global + Nigerian interest)
-    symbols = [
-        "AAPL","TSLA","MSFT","AMZN","NVDA",
-        "META","GOOGL","NFLX","INTC","AMD",
-        "BABA","SHOP","UBER","PYPL","V",
-        "MA","JPM","WMT","DIS","KO",
-        "PEP","PFE","MRNA","XOM","CVX",
-        "BA","GM","F","SNAP","T",
-        "VZ","ADBE","CRM","ORCL","IBM",
-        "SQ","COIN","ROKU"
-    ]
-
-    url = "https://query1.finance.yahoo.com/v7/finance/quote"
-
-    stock_data = {}
-
-    try:
-        response = requests.get(url, params={
-            "symbols": ",".join(symbols)
-        }).json()
-
-        results = response.get("quoteResponse", {}).get("result", [])
-
-        for item in results:
-            symbol = item.get("symbol")
-            price = item.get("regularMarketPrice")
-
-            if symbol and price:
-                stock_data[symbol] = float(price)
-
-    except Exception as e:
-        print("❌ Yahoo error:", e)
-
-    # Safety check
-    if not stock_data:
-        print("⚠️ No stock data retrieved — skipping save")
-        return
-
-    save_json("data/stocks.json", stock_data)
-    print(f"✅ Stocks saved: {len(stock_data)}")
-
 # ---------------- RUN ----------------
 update_forex()
 update_crypto()
-update_stocks()
