@@ -41,37 +41,37 @@ def update_crypto():
 
 # ---------------- STOCKS ----------------
 def update_stocks():
-    # Expanded list (popular globally + Nigerian interest)
     symbols = [
         "aapl.us","tsla.us","msft.us","amzn.us","nvda.us",
-        "meta.us","googl.us","nflx.us","intel.us","amd.us",
-        "baba.us","shop.us","uber.us","lyft.us","pypl.us",
-        "visa.us","ma.us","jpm.us","wmt.us","dis.us",
-        "ko.us","pepsi.us","pfe.us","mrna.us","xom.us",
-        "cvx.us","ba.us","gm.us","f.us","snap.us",
-        "t.us","vzw.us","adbe.us","crm.us","orcl.us",
-        "ibm.us","sq.us","block.us","coin.us","roku.us"
+        "meta.us","googl.us","nflx.us","intel.us","amd.us"
     ]
 
-    # split into chunks (stooq limit)
     stock_data = {}
 
-    for i in range(0, len(symbols), 10):
-        chunk = ",".join(symbols[i:i+10])
+    for i in range(0, len(symbols), 5):
+        chunk = ",".join(symbols[i:i+5])
         url = f"https://stooq.com/q/l/?s={chunk}&f=sd2t2ohlcv&h&e=json"
 
         try:
             res = requests.get(url).json()
 
-            for item in res.get("symbols", []):
-                sym = item["symbol"].split(".")[0].upper()
-                price = float(item.get("close", 0))
+            # DEBUG: print raw response if empty
+            if "symbols" not in res:
+                print("⚠️ Invalid response:", res)
+                continue
 
-                if price > 0:
-                    stock_data[sym] = price
+            for item in res["symbols"]:
+                symbol = item.get("symbol", "").split(".")[0].upper()
+                price = item.get("close")
 
-        except:
-            continue
+                # Validate price
+                if price and price != "N/D":
+                    stock_data[symbol] = float(price)
+
+        except Exception as e:
+            print("❌ Error:", e)
+
+    print("📊 Stocks collected:", len(stock_data))  # DEBUG
 
     save_json("data/stocks.json", stock_data)
 
