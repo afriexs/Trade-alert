@@ -41,7 +41,6 @@ def update_crypto():
 
 # ---------------- STOCKS ----------------
 def update_stocks():
-    import requests
 
     # Strong list (global + Nigerian interest)
     symbols = [
