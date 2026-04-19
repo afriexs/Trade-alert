@@ -1,3 +1,4 @@
 requests
 appwrite
-python-telegram-bot==13.15
+python-telegram-bot==13.10
+
