@@ -1,0 +1,22 @@
+name: Update Market Data
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: pip install -r requirements.txt
+
+      - run: python src/update_data.py
+
+      - run: git config --global user.name "bot"
+      - run: git config --global user.email "bot@example.com"
+      - run: git add .
+      - run: git commit -m "update data" || echo "no changes"
+      - run: git push
