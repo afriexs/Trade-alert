@@ -5,7 +5,16 @@ from appwrite_client import db
 import config, time
 import traceback
 import sys
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import threading
+
+def run_server():
+    server = HTTPServer(("0.0.0.0", 10000), BaseHTTPRequestHandler)
+    server.serve_forever()
+
+threading.Thread(target=run_server).start()
 print("BOT STARTING...", flush=True)
+
 
 try:
 
