@@ -6,7 +6,7 @@ import config, time
 
 updater = Updater(config.TELEGRAM_TOKEN, use_context=True)
 dp = updater.dispatcher
-
+updater.start_polling(drop_pending_updates=True)
 
 # START
 def start(update, context):
