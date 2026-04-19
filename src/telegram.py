@@ -10,24 +10,48 @@ dp = updater.dispatcher
 
 # START
 def start(update, context):
+    chat_id = str(update.message.chat_id)
+
+    # Try to create user if not exists
+    try:
+        db.get_document(
+            database_id=config.APPWRITE_DB,
+            collection_id=config.APPWRITE_COLLECTION,
+            document_id=chat_id
+        )
+    except:
+        db.create_document(
+            database_id=config.APPWRITE_DB,
+            collection_id=config.APPWRITE_COLLECTION,
+            document_id=chat_id,
+            data={
+                "chat_id": chat_id,
+                "plan": "free",
+                "expires_at": 0,
+                "amount": 10000,
+                "assets": [],
+                "reference_prices": {},
+                "threshold": 0.01,
+                "interval": 60
+            }
+        )
+
+    # Handle payment activation
     args = context.args
-
     if args and args[0].startswith("paid_"):
-        chat_id = str(update.message.chat_id)
-
         db.update_document(
             database_id=config.APPWRITE_DB,
             collection_id=config.APPWRITE_COLLECTION,
             document_id=chat_id,
             data={
                 "plan": "standard",
-                "expires_at": int(time.time()) + (30*86400)
+                "expires_at": int(time.time()) + (30 * 86400)
             }
         )
 
         update.message.reply_text("✅ Subscription activated!")
-        return
 
+    # Show UI
     update.message.reply_text(
         "Welcome 👋\n\nTrack market moves easily.",
         reply_markup=main_menu()
