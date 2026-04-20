@@ -5,6 +5,8 @@ from appwrite_client import db
 import config, time
 import traceback
 import sys
+import time
+time.sleep(5)
 
 print("BOT STARTING...", flush=True)
 
@@ -114,9 +116,5 @@ try:
     updater.idle()
 
 except Exception:
-    update.message.reply_text(
-    "Welcome 👋\n\nTrack market moves easily.",
-    reply_markup=main_menu()
-    )
     print("CRASH ERROR:")
     print(traceback.format_exc(), flush=True)
