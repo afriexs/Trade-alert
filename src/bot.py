@@ -7,6 +7,7 @@ import traceback
 import sys
 
 print("BOT STARTING...", flush=True)
+print("BOT USER:", updater.bot.get_me(), flush=True)
 
 # ---------------- OPTIONAL PORT SERVER (KEEP FOR RENDER) ----------------
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -28,10 +29,10 @@ threading.Thread(target=run_server, daemon=True).start()
 # ---------------- INIT BOT ----------------
 updater = Updater(config.TELEGRAM_TOKEN, use_context=True)
 dp = updater.dispatcher
-
-
+    
 # ---------------- START COMMAND ----------------
 def start(update, context):
+    print("START COMMAND RECEIVED", flush=True)
     chat_id = str(update.message.chat_id)
 
     try:
