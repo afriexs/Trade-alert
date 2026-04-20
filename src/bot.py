@@ -114,5 +114,9 @@ try:
     updater.idle()
 
 except Exception:
+    update.message.reply_text(
+    "Welcome 👋\n\nTrack market moves easily.",
+    reply_markup=main_menu()
+    )
     print("CRASH ERROR:")
     print(traceback.format_exc(), flush=True)
