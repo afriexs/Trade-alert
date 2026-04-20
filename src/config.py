@@ -1,4 +1,4 @@
-APPWRITE_ENDPOINT = "https://us-central-1.cloud.appwrite.io/v1"
+APPWRITE_ENDPOINT = "https://cloud.appwrite.io/v1"
 APPWRITE_PROJECT = "trade-alert"
 APPWRITE_API_KEY = "standard_c13a4eef7fdcffcdbfabe706e1ba4dc703200bd2c9a1ce0e2b94aefc30200931a9e439e92d38af854b695d6cecfc85412c8a9e4f492d17171c4f96658c086e663dcb260cb7afe55f82046b39562d2de117ad7d161e83db3c21f16402520d664805611c179633317dd123935f0d9dfd9c279048885f9caba1ac3a4cc84c0e90b7"
 APPWRITE_DB = "market_db"
