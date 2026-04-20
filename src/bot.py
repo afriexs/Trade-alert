@@ -5,8 +5,17 @@ from appwrite_client import db
 import config, time
 import traceback
 import sys
+import os
 import time
 time.sleep(5)
+
+LOCK_FILE = "/tmp/bot.lock"
+
+if os.path.exists(LOCK_FILE):
+    print("Bot already running, exiting...")
+    exit()
+
+open(LOCK_FILE, "w").close()
 
 print("BOT STARTING...", flush=True)
 
@@ -112,7 +121,11 @@ dp.add_error_handler(error_handler)
 
 # ---------------- START BOT SAFELY ----------------
 try:
-    updater.start_polling(drop_pending_updates=True)
+    updater.start_polling(
+    drop_pending_updates=True,
+    timeout=30,
+    read_latency=2
+    )
     updater.idle()
 
 except Exception:
