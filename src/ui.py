@@ -3,7 +3,6 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 def main_menu():
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("📊 Select Assets", callback_data="select_assets")],
-        [InlineKeyboardButton("💰 Set Amount", callback_data="set_amount")],
         [InlineKeyboardButton("⚙ Settings", callback_data="settings")],
         [InlineKeyboardButton("📈 Check Rate", callback_data="check_rate")],
         [InlineKeyboardButton("💳 Upgrade Plan", callback_data="upgrade")]
