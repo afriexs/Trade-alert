@@ -127,7 +127,8 @@ try:
     updater.start_polling(
     drop_pending_updates=True,
     timeout=30,
-    read_latency=2
+    read_latency=2,
+    allowed_updates=["message", "callback_query"]
     )
     updater.idle()
 
