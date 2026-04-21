@@ -123,6 +123,7 @@ dp.add_error_handler(error_handler)
 
 # ---------------- START BOT SAFELY ----------------
 try:
+    updater.stop()
     updater.start_polling(
     drop_pending_updates=True,
     timeout=30,
