@@ -91,6 +91,8 @@ def start(update, context):
 
 # ---------------- BUTTON HANDLER ----------------
 def button(update, context):
+    print("BUTTON CLICKED:", update.callback_query.data, flush=True)
+
     query = update.callback_query
     query.answer()
 
