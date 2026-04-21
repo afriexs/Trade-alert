@@ -12,7 +12,6 @@ def asset_menu():
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("Crypto", callback_data="asset_crypto")],
         [InlineKeyboardButton("Forex", callback_data="asset_forex")],
-        [InlineKeyboardButton("Stocks", callback_data="asset_stocks")],
         [InlineKeyboardButton("✅ Done", callback_data="done_assets")]
     ])
 
