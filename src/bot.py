@@ -97,16 +97,16 @@ def button(update, context):
     query.answer()
 
     if query.data == "select_assets":
-        query.edit_message_text("Select assets:", reply_markup=asset_menu())
+        query.message.edit_text("Select assets:", reply_markup=asset_menu())
 
     elif query.data == "upgrade":
-        query.edit_message_text("Upgrade your plan:", reply_markup=upgrade_menu())
+        query.message.edit_text("Upgrade your plan:", reply_markup=upgrade_menu())
 
     elif query.data == "settings":
-        query.edit_message_text("⚙ Settings coming soon")
+        query.message.edit_text("⚙ Settings coming soon")
 
     elif query.data == "check_rate":
-        query.edit_message_text("Enter /check BTC")
+        query.message.edit_text("Enter /check BTC")
 
 
 # ---------------- ERROR HANDLER ----------------
