@@ -1,6 +1,6 @@
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 from telegram import Update
-from ui import main_menu, asset_menu, upgrade_menu, settings_menu, interval_menu
+from ui import main_menu, asset_menu, upgrade_menu, settings_menu, interval_menu, crypto_list_menu, forex_list_menu
 from appwrite_client import db
 from rate_history import get_top_movers
 import config, time, traceback, sys, os, json
@@ -20,6 +20,7 @@ print("BOT STARTING...", flush=True)
 # ---------------- OPTIONAL PORT SERVER (KEEP FOR RENDER) ----------------
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
+user_selection = {}
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -72,25 +73,64 @@ def button(update, context):
 
     chat_id = str(query.message.chat_id)
 
-    if query.data == "select_assets":
-        context.user_data["temp_assets"] = []
-        query.edit_message_text("Select assets:", reply_markup=asset_menu())
+    # init user selection if not exists
+    if chat_id not in user_selection:
+        user_selection[chat_id] = {
+            "assets": []
+        }
 
-    elif query.data.startswith("asset_"):
-        asset_type = query.data.split("_")[1]
+    data = query.data
+    print("BUTTON CLICKED:", data, flush=True)
 
-        if asset_type == "both":
-            context.user_data["temp_assets"] = ["crypto", "forex"]
+    # ---------------- MAIN MENU ----------------
+    if data == "select_assets":
+        query.message.edit_text(
+            "Choose asset type:",
+            reply_markup=asset_menu()
+        )
+
+    elif data == "asset_crypto":
+        selected = user_selection[chat_id]["assets"]
+        query.message.edit_text(
+            "Select Crypto:",
+            reply_markup=crypto_list_menu(selected)
+        )
+
+    elif data == "asset_forex":
+        selected = user_selection[chat_id]["assets"]
+        query.message.edit_text(
+            "Select Forex:",
+            reply_markup=forex_list_menu(selected)
+        )
+
+    # ---------------- TOGGLE ASSETS ----------------
+    elif data.startswith("toggle_"):
+        asset = data.split("_")[1]
+
+        if asset in user_selection[chat_id]["assets"]:
+            user_selection[chat_id]["assets"].remove(asset)
         else:
-            if "temp_assets" not in context.user_data:
-                context.user_data["temp_assets"] = []
-            context.user_data["temp_assets"].append(asset_type)
+            user_selection[chat_id]["assets"].append(asset)
 
-        query.answer(f"{asset_type} selected")
+        selected = user_selection[chat_id]["assets"]
 
-    elif query.data == "done_assets":
-        selected = context.user_data.get("temp_assets", [])
+        # Detect which menu to show again
+        if asset in ["BTC", "ETH", "DOGE", "SOL", "BNB"]:
+            query.message.edit_text(
+                "Select Crypto:",
+                reply_markup=crypto_list_menu(selected)
+            )
+        else:
+            query.message.edit_text(
+                "Select Forex:",
+                reply_markup=forex_list_menu(selected)
+            )
 
+    # ---------------- SAVE ----------------
+    elif data == "done_assets":
+        selected = user_selection[chat_id]["assets"]
+
+        # save to Appwrite
         db.update_document(
             database_id=config.APPWRITE_DB,
             collection_id=config.APPWRITE_COLLECTION,
@@ -98,7 +138,14 @@ def button(update, context):
             data={"assets": selected}
         )
 
-        query.edit_message_text("✅ Assets saved", reply_markup=main_menu())
+        query.message.edit_text(
+            f"✅ Saved Assets:\n\n{', '.join(selected) if selected else 'None'}",
+            reply_markup=main_menu()
+        )
+
+    # ---------------- OTHER BUTTONS ----------------
+    elif data == "upgrade":
+        query.message.edit_text("Upgrade your plan:", reply_markup=upgrade_menu())
 
     elif query.data == "settings":
         query.edit_message_text("Settings:", reply_markup=settings_menu())
@@ -135,8 +182,6 @@ def button(update, context):
 
         query.edit_message_text(text)
 
-    elif query.data == "upgrade":
-        query.edit_message_text("Upgrade:", reply_markup=upgrade_menu())
 
 # ---------------- HANDLERS ----------------
 dp.add_handler(CommandHandler("start", start))
