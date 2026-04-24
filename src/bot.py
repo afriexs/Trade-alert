@@ -3,7 +3,7 @@ from telegram import Update
 from ui import main_menu, asset_menu, upgrade_menu, settings_menu, interval_menu
 from appwrite_client import db
 from rate_history import get_top_movers
-import config, time, traceback, os, json
+import config, time, traceback, sys, os, json
 
 time.sleep(5)
 
@@ -17,7 +17,7 @@ open(LOCK_FILE, "w").close()
 
 print("BOT STARTING...", flush=True)
 
-# ---------------- SERVER ----------------
+# ---------------- OPTIONAL PORT SERVER (KEEP FOR RENDER) ----------------
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
 
