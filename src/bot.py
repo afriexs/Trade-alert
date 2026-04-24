@@ -100,9 +100,7 @@ def button(update, context):
             document_id=chat_id
         )
 
-        user_dict = user.dict()  # ✅ FIX
-
-        assets = json.loads(user_dict.get("assets", "[]"))
+        assets = user.assets if user.assets else []
 
         selected = "crypto" if query.data == "asset_crypto" else "forex"
 
@@ -113,10 +111,11 @@ def button(update, context):
             database_id=config.APPWRITE_DB,
             collection_id=config.APPWRITE_COLLECTION,
             document_id=chat_id,
-            data={"assets": json.dumps(assets)}  # ✅ ALWAYS STRING
+            data={"assets": assets}
         )
 
         query.answer(f"{selected.capitalize()} added ✅")
+
 
     # -------- TOGGLE ASSET --------
     elif query.data.startswith("toggle_"):
