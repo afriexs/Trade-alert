@@ -168,6 +168,9 @@ def button(update, context):
     elif query.data == "condition_settings":
         query.edit_message_text("Send conditions like:\nBTC > 2%\nETH < -1%")
 
+    elif query.data == "back_main":
+        query.edit_message_text("Main Menu:", reply_markup=main_menu())
+
     elif query.data == "check_top":
         crypto = get_top_movers("crypto")
         forex = get_top_movers("forex")
