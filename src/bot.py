@@ -1,12 +1,10 @@
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 from telegram import Update
-from ui import main_menu, asset_menu, upgrade_menu
+from ui import main_menu, asset_menu, upgrade_menu, settings_menu, interval_menu
 from appwrite_client import db
-import config, time
-import traceback
-import sys
-import os
-import time
+from rate_history import get_top_movers
+import config, time, traceback, os, json
+
 time.sleep(5)
 
 LOCK_FILE = "/tmp/bot.lock"
@@ -19,7 +17,7 @@ open(LOCK_FILE, "w").close()
 
 print("BOT STARTING...", flush=True)
 
-# ---------------- OPTIONAL PORT SERVER (KEEP FOR RENDER) ----------------
+# ---------------- SERVER ----------------
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
 
@@ -35,15 +33,12 @@ def run_server():
 
 threading.Thread(target=run_server, daemon=True).start()
 
-
-# ---------------- INIT BOT ----------------
+# ---------------- INIT ----------------
 updater = Updater(config.TELEGRAM_TOKEN, use_context=True)
 dp = updater.dispatcher
-print("BOT USER:", updater.bot.get_me(), flush=True)
-    
-# ---------------- START COMMAND ----------------
+
+# ---------------- START ----------------
 def start(update, context):
-    print("START COMMAND RECEIVED", flush=True)
     chat_id = str(update.message.chat_id)
 
     try:
@@ -60,78 +55,96 @@ def start(update, context):
             data={
                 "chat_id": chat_id,
                 "plan": "free",
-                "expires_at": 0,
-                "amount": 10000,
                 "assets": [],
-                "reference_prices": {},
-                "threshold": 0.01,
                 "interval": 60
             }
         )
 
-    args = context.args
+    update.message.reply_text(
+        "Welcome 👋",
+        reply_markup=main_menu()
+    )
 
-    if args and args[0].startswith("paid_"):
+# ---------------- BUTTON ----------------
+def button(update, context):
+    query = update.callback_query
+    query.answer()
+
+    chat_id = str(query.message.chat_id)
+
+    if query.data == "select_assets":
+        context.user_data["temp_assets"] = []
+        query.edit_message_text("Select assets:", reply_markup=asset_menu())
+
+    elif query.data.startswith("asset_"):
+        asset_type = query.data.split("_")[1]
+
+        if asset_type == "both":
+            context.user_data["temp_assets"] = ["crypto", "forex"]
+        else:
+            if "temp_assets" not in context.user_data:
+                context.user_data["temp_assets"] = []
+            context.user_data["temp_assets"].append(asset_type)
+
+        query.answer(f"{asset_type} selected")
+
+    elif query.data == "done_assets":
+        selected = context.user_data.get("temp_assets", [])
+
         db.update_document(
             database_id=config.APPWRITE_DB,
             collection_id=config.APPWRITE_COLLECTION,
             document_id=chat_id,
-            data={
-                "plan": "standard",
-                "expires_at": int(time.time()) + (30 * 86400)
-            }
+            data={"assets": selected}
         )
-        update.message.reply_text("✅ Subscription activated!")
 
-    update.message.reply_text(
-        "Welcome 👋\n\nTrack market moves easily.",
-        reply_markup=main_menu()
-    )
-
-
-# ---------------- BUTTON HANDLER ----------------
-def button(update, context):
-    print("BUTTON CLICKED:", update.callback_query.data, flush=True)
-
-    query = update.callback_query
-    query.answer()
-
-    if query.data == "select_assets":
-        query.message.edit_text("Select assets:", reply_markup=asset_menu())
-
-    elif query.data == "upgrade":
-        query.message.edit_text("Upgrade your plan:", reply_markup=upgrade_menu())
+        query.edit_message_text("✅ Assets saved", reply_markup=main_menu())
 
     elif query.data == "settings":
-        query.message.edit_text("⚙ Settings coming soon")
+        query.edit_message_text("Settings:", reply_markup=settings_menu())
 
-    elif query.data == "check_rate":
-        query.message.edit_text("Enter /check BTC")
+    elif query.data == "interval_settings":
+        query.edit_message_text("Choose interval:", reply_markup=interval_menu())
 
+    elif query.data.startswith("interval_"):
+        minutes = int(query.data.split("_")[1])
 
-# ---------------- ERROR HANDLER ----------------
-def error_handler(update, context):
-    print("ERROR:", traceback.format_exc(), flush=True)
+        db.update_document(
+            database_id=config.APPWRITE_DB,
+            collection_id=config.APPWRITE_COLLECTION,
+            document_id=chat_id,
+            data={"interval": minutes}
+        )
 
+        query.edit_message_text(f"✅ Interval set to {minutes} mins", reply_markup=main_menu())
 
-# ---------------- REGISTER HANDLERS ----------------
+    elif query.data == "condition_settings":
+        query.edit_message_text("Send conditions like:\nBTC > 2%\nETH < -1%")
+
+    elif query.data == "check_top":
+        crypto = get_top_movers("crypto")
+        forex = get_top_movers("forex")
+
+        text = "📈 Top Crypto (trend)\n\n"
+        for c, val in crypto:
+            text += f"{c} ↑ +{val}%\n"
+
+        text += "\n💱 Top Forex (trend)\n\n"
+        for f, val in forex:
+            text += f"{f} ↑ +{val}%\n"
+
+        query.edit_message_text(text)
+
+    elif query.data == "upgrade":
+        query.edit_message_text("Upgrade:", reply_markup=upgrade_menu())
+
+# ---------------- HANDLERS ----------------
 dp.add_handler(CommandHandler("start", start))
 dp.add_handler(CallbackQueryHandler(button))
 
-dp.add_error_handler(error_handler)
-
-
-# ---------------- START BOT SAFELY ----------------
-try:
-    updater.stop()
-    updater.start_polling(
+# ---------------- START ----------------
+updater.start_polling(
     drop_pending_updates=True,
-    timeout=30,
-    read_latency=2,
     allowed_updates=["message", "callback_query"]
-    )
-    updater.idle()
-
-except Exception:
-    print("CRASH ERROR:")
-    print(traceback.format_exc(), flush=True)
+)
+updater.idle()
