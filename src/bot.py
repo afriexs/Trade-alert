@@ -92,31 +92,31 @@ def button(update, context):
 
     # -------- SELECT CRYPTO --------
     elif query.data in ["asset_crypto", "asset_forex"]:
-    chat_id = str(query.message.chat_id)
+        chat_id = str(query.message.chat_id)
 
-    user = db.get_document(
-        database_id=config.APPWRITE_DB,
-        collection_id=config.APPWRITE_COLLECTION,
-        document_id=chat_id
-    )
+        user = db.get_document(
+            database_id=config.APPWRITE_DB,
+            collection_id=config.APPWRITE_COLLECTION,
+            document_id=chat_id
+        )
 
-    user_dict = user.dict()  # ✅ FIX
+        user_dict = user.dict()  # ✅ FIX
 
-    assets = json.loads(user_dict.get("assets", "[]"))
+        assets = json.loads(user_dict.get("assets", "[]"))
 
-    selected = "crypto" if query.data == "asset_crypto" else "forex"
+        selected = "crypto" if query.data == "asset_crypto" else "forex"
 
-    if selected not in assets:
-        assets.append(selected)
+        if selected not in assets:
+            assets.append(selected)
 
-    db.update_document(
-        database_id=config.APPWRITE_DB,
-        collection_id=config.APPWRITE_COLLECTION,
-        document_id=chat_id,
-        data={"assets": json.dumps(assets)}  # ✅ ALWAYS STRING
-    )
+        db.update_document(
+            database_id=config.APPWRITE_DB,
+            collection_id=config.APPWRITE_COLLECTION,
+            document_id=chat_id,
+            data={"assets": json.dumps(assets)}  # ✅ ALWAYS STRING
+        )
 
-    query.answer(f"{selected.capitalize()} added ✅")
+        query.answer(f"{selected.capitalize()} added ✅")
 
     # -------- TOGGLE ASSET --------
     elif query.data.startswith("toggle_"):
