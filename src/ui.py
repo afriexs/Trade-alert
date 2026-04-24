@@ -35,3 +35,48 @@ def upgrade_menu():
         [InlineKeyboardButton("Standard Plan", url="YOUR_SELAR_LINK")],
         [InlineKeyboardButton("Premium Plan", url="YOUR_SELAR_LINK")]
     ])
+
+# -------- CRYPTO LIST --------
+def crypto_list_menu(selected):
+    coins = ["BTC", "ETH", "DOGE", "SOL", "BNB"]
+
+    buttons = []
+
+    for coin in coins:
+        mark = "✅ " if coin in selected else ""
+        buttons.append([
+            InlineKeyboardButton(
+                f"{mark}{coin}",
+                callback_data=f"toggle_{coin}"
+            )
+        ])
+
+    buttons.append([
+        InlineKeyboardButton("⬅ Back", callback_data="select_assets"),
+        InlineKeyboardButton("✅ Done", callback_data="done_assets")
+    ])
+
+    return InlineKeyboardMarkup(buttons)
+
+
+# -------- FOREX LIST --------
+def forex_list_menu(selected):
+    pairs = ["USD", "EUR", "GBP", "JPY", "NGN"]
+
+    buttons = []
+
+    for pair in pairs:
+        mark = "✅ " if pair in selected else ""
+        buttons.append([
+            InlineKeyboardButton(
+                f"{mark}{pair}",
+                callback_data=f"toggle_{pair}"
+            )
+        ])
+
+    buttons.append([
+        InlineKeyboardButton("⬅ Back", callback_data="select_assets"),
+        InlineKeyboardButton("✅ Done", callback_data="done_assets")
+    ])
+
+    return InlineKeyboardMarkup(buttons)
