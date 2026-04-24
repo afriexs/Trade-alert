@@ -20,7 +20,7 @@ def settings_menu():
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("⏱ Interval Alerts", callback_data="interval_settings")],
         [InlineKeyboardButton("🎯 Condition Alerts", callback_data="condition_settings")],
-        [InlineKeyboardButton("⬅ Back", callback_data="settings")]
+        [InlineKeyboardButton("⬅ Back", callback_data="back_main")]
     ])
 
 def interval_menu():
