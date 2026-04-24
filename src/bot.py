@@ -72,71 +72,81 @@ def button(update, context):
 
     chat_id = str(query.message.chat_id)
 
+    print("BUTTON CLICKED:", query.data, flush=True)
+
+    # -------- GET USER DATA --------
+    user = db.get_document(
+        database_id=config.APPWRITE_DB,
+        collection_id=config.APPWRITE_COLLECTION,
+        document_id=chat_id
+    )
+
+    assets = json.loads(user.get("assets", "[]"))
+
+    # -------- SELECT ASSETS MENU --------
     if query.data == "select_assets":
-        context.user_data["temp_assets"] = []
-        query.edit_message_text("Select assets:", reply_markup=asset_menu())
+        query.message.edit_text(
+            "Choose asset type:",
+            reply_markup=asset_menu()
+        )
 
-    elif query.data.startswith("asset_"):
-        asset_type = query.data.split("_")[1]
+    # -------- SELECT CRYPTO --------
+    elif query.data == "asset_crypto":
+        context.user_data["mode"] = "crypto"
 
-        if asset_type == "both":
-            context.user_data["temp_assets"] = ["crypto", "forex"]
+        query.message.edit_text(
+            "Select Crypto:",
+            reply_markup=crypto_list_menu(assets)
+        )
+
+    # -------- SELECT FOREX --------
+    elif query.data == "asset_forex":
+        context.user_data["mode"] = "forex"
+
+        query.message.edit_text(
+            "Select Forex:",
+            reply_markup=forex_list_menu(assets)
+        )
+
+    # -------- TOGGLE ASSET --------
+    elif query.data.startswith("toggle_"):
+        asset = query.data.replace("toggle_", "")
+
+        if asset in assets:
+            assets.remove(asset)
         else:
-            if "temp_assets" not in context.user_data:
-                context.user_data["temp_assets"] = []
-            context.user_data["temp_assets"].append(asset_type)
+            assets.append(asset)
 
-        query.answer(f"{asset_type} selected")
+        # SAVE BACK
+        db.update_document(
+            database_id=config.APPWRITE_DB,
+            collection_id=config.APPWRITE_COLLECTION,
+            document_id=chat_id,
+            data={
+                "assets": json.dumps(assets)
+            }
+        )
 
+        # REFRESH MENU
+        mode = context.user_data.get("mode")
+
+        if mode == "crypto":
+            query.message.edit_text(
+                "Select Crypto:",
+                reply_markup=crypto_list_menu(assets)
+            )
+        else:
+            query.message.edit_text(
+                "Select Forex:",
+                reply_markup=forex_list_menu(assets)
+            )
+
+    # -------- DONE --------
     elif query.data == "done_assets":
-        selected = context.user_data.get("temp_assets", [])
-
-        db.update_document(
-            database_id=config.APPWRITE_DB,
-            collection_id=config.APPWRITE_COLLECTION,
-            document_id=chat_id,
-            data={"assets": selected}
-        )
-
-        query.edit_message_text("✅ Assets saved", reply_markup=main_menu())
-
-    elif query.data == "settings":
-        query.edit_message_text("Settings:", reply_markup=settings_menu())
-
-    elif query.data == "interval_settings":
-        query.edit_message_text("Choose interval:", reply_markup=interval_menu())
-
-    elif query.data.startswith("interval_"):
-        minutes = int(query.data.split("_")[1])
-
-        db.update_document(
-            database_id=config.APPWRITE_DB,
-            collection_id=config.APPWRITE_COLLECTION,
-            document_id=chat_id,
-            data={"interval": minutes}
-        )
-
-        query.edit_message_text(f"✅ Interval set to {minutes} mins", reply_markup=main_menu())
-
-    elif query.data == "condition_settings":
-        query.edit_message_text("Send conditions like:\nBTC > 2%\nETH < -1%")
-
-    elif query.data == "check_top":
-        crypto = get_top_movers("crypto")
-        forex = get_top_movers("forex")
-
-        text = "📈 Top Crypto (trend)\n\n"
-        for c, val in crypto:
-            text += f"{c} ↑ +{val}%\n"
-
-        text += "\n💱 Top Forex (trend)\n\n"
-        for f, val in forex:
-            text += f"{f} ↑ +{val}%\n"
-
-        query.edit_message_text(text)
-
-    elif query.data == "upgrade":
-        query.edit_message_text("Upgrade:", reply_markup=upgrade_menu())
+        query.message.edit_text(
+            f"✅ Assets saved:\n{', '.join(assets) if assets else 'None'}",
+            reply_markup=main_menu()
+    )
 
 # ---------------- HANDLERS ----------------
 dp.add_handler(CommandHandler("start", start))
