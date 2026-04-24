@@ -91,22 +91,32 @@ def button(update, context):
         )
 
     # -------- SELECT CRYPTO --------
-    elif query.data == "asset_crypto":
-        context.user_data["mode"] = "crypto"
+    elif query.data in ["asset_crypto", "asset_forex"]:
+    chat_id = str(query.message.chat_id)
 
-        query.message.edit_text(
-            "Select Crypto:",
-            reply_markup=crypto_list_menu(assets)
-        )
+    user = db.get_document(
+        database_id=config.APPWRITE_DB,
+        collection_id=config.APPWRITE_COLLECTION,
+        document_id=chat_id
+    )
 
-    # -------- SELECT FOREX --------
-    elif query.data == "asset_forex":
-        context.user_data["mode"] = "forex"
+    user_dict = user.dict()  # ✅ FIX
 
-        query.message.edit_text(
-            "Select Forex:",
-            reply_markup=forex_list_menu(assets)
-        )
+    assets = json.loads(user_dict.get("assets", "[]"))
+
+    selected = "crypto" if query.data == "asset_crypto" else "forex"
+
+    if selected not in assets:
+        assets.append(selected)
+
+    db.update_document(
+        database_id=config.APPWRITE_DB,
+        collection_id=config.APPWRITE_COLLECTION,
+        document_id=chat_id,
+        data={"assets": json.dumps(assets)}  # ✅ ALWAYS STRING
+    )
+
+    query.answer(f"{selected.capitalize()} added ✅")
 
     # -------- TOGGLE ASSET --------
     elif query.data.startswith("toggle_"):
