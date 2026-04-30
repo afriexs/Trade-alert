@@ -80,3 +80,63 @@ def forex_list_menu(selected):
     ])
 
     return InlineKeyboardMarkup(buttons)
+
+
+def condition_asset_menu(assets):
+    buttons = []
+
+    for a in assets:
+        buttons.append([
+            InlineKeyboardButton(a, callback_data=f"cond_asset_{a}")
+        ])
+
+    buttons.append([
+        InlineKeyboardButton("⬅ Back", callback_data="settings")
+    ])
+
+    return InlineKeyboardMarkup(buttons)
+
+def condition_list_menu(asset, conditions):
+    buttons = []
+
+    for cond in conditions:
+        sign = "+" if cond["type"] == "increase" else "-"
+        label = f"{sign}{cond['value']}%"
+        buttons.append([
+            InlineKeyboardButton(label, callback_data=f"noop")
+        ])
+
+    buttons.append([
+        InlineKeyboardButton("➕ Add", callback_data=f"addcond_{asset}"),
+        InlineKeyboardButton("❌ Remove", callback_data=f"removecond_{asset}")
+    ])
+
+    buttons.append([
+        InlineKeyboardButton("⬅ Back", callback_data="condition_settings")
+    ])
+
+    return InlineKeyboardMarkup(buttons)
+
+def remove_condition_menu(asset, conditions):
+    buttons = []
+
+    for cond in conditions:
+        sign = "+" if cond["type"] == "increase" else "-"
+        label = f"{sign}{cond['value']}%"
+
+        buttons.append([
+            InlineKeyboardButton(label, callback_data=f"delcond_{asset}_{cond['id']}")
+        ])
+
+    buttons.append([
+        InlineKeyboardButton("⬅ Back", callback_data=f"cond_asset_{asset}")
+    ])
+
+    return InlineKeyboardMarkup(buttons)
+
+def add_condition_type_menu(asset):
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("📈 Increase", callback_data=f"addtype_{asset}_increase")],
+        [InlineKeyboardButton("📉 Decrease", callback_data=f"addtype_{asset}_decrease")],
+        [InlineKeyboardButton("⬅ Back", callback_data=f"cond_asset_{asset}")]
+    ])
