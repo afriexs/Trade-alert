@@ -247,7 +247,7 @@ def button(update, context):
         query.edit_message_text(
             f"Remove condition for {asset}:",
             reply_markup=remove_condition_menu(asset, conditions)
-        ).
+        )
 
     elif data.startswith("delcond_"):
         _, asset, cid = data.split("_")
