@@ -6,6 +6,7 @@ from rate_history import get_top_movers
 import config, time, traceback, sys, os, json
 import uuid
 
+
 time.sleep(5)
 
 LOCK_FILE = "/tmp/bot.lock"
