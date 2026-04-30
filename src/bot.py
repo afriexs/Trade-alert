@@ -212,7 +212,7 @@ def button(update, context):
         new_cond = {
             "id": str(uuid.uuid4())[:6],
             "type": ctype,
-            "value": 2  # default (you can improve later)
+            "value": 2
         }
 
         conditions.setdefault(asset, []).append(new_cond)
@@ -224,7 +224,13 @@ def button(update, context):
             data={"conditions": conditions}
         )
 
-        query.edit_message_text(f"✅ {asset} condition added")
+        # 🔥 IMPORTANT: reload updated list
+        updated_conditions = conditions.get(asset, [])
+
+        query.edit_message_text(
+            f"{asset} Conditions:",
+            reply_markup=condition_list_menu(asset, updated_conditions)
+        )
 
     elif data.startswith("removecond_"):
         asset = data.split("_")[1]
@@ -240,7 +246,7 @@ def button(update, context):
         query.edit_message_text(
             f"Remove condition for {asset}:",
             reply_markup=remove_condition_menu(asset, conditions)
-        )
+        ).
 
     elif data.startswith("delcond_"):
         _, asset, cid = data.split("_")
@@ -263,7 +269,13 @@ def button(update, context):
             data={"conditions": conditions}
         )
 
-        query.edit_message_text("❌ Condition removed")
+        # 🔥 IMPORTANT: reload updated list
+        updated_conditions = conditions.get(asset, [])
+
+        query.edit_message_text(
+            f"{asset} Conditions:",
+            reply_markup=condition_list_menu(asset, updated_conditions)
+        )
 
     elif data == "condition_settings":
         user = db.get_document(
