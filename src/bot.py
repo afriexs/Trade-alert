@@ -4,6 +4,7 @@ from ui import main_menu, asset_menu, upgrade_menu, settings_menu, interval_menu
 from appwrite_client import db
 from rate_history import get_top_movers
 import config, time, traceback, sys, os, json
+import uuid
 
 time.sleep(5)
 
@@ -188,6 +189,73 @@ def button(update, context):
             f"{asset} - Choose type:",
             reply_markup=add_condition_type_menu(asset)
         )
+
+    elif data.startswith("addtype_"):
+        _, asset, ctype = data.split("_")
+
+        user = db.get_document(
+            database_id=config.APPWRITE_DB,
+            collection_id=config.APPWRITE_COLLECTION,
+            document_id=chat_id
+        )
+
+        conditions = user.get("conditions", {})
+
+        new_cond = {
+            "id": str(uuid.uuid4())[:6],
+            "type": ctype,
+            "value": 2  # default (you can improve later)
+        }
+
+        conditions.setdefault(asset, []).append(new_cond)
+
+        db.update_document(
+            database_id=config.APPWRITE_DB,
+            collection_id=config.APPWRITE_COLLECTION,
+            document_id=chat_id,
+            data={"conditions": conditions}
+        )
+
+        query.edit_message_text(f"✅ {asset} condition added")
+
+    elif data.startswith("removecond_"):
+        asset = data.split("_")[1]
+
+        user = db.get_document(
+            database_id=config.APPWRITE_DB,
+            collection_id=config.APPWRITE_COLLECTION,
+            document_id=chat_id
+        )
+
+        conditions = user.get("conditions", {}).get(asset, [])
+
+        query.edit_message_text(
+            f"Remove condition for {asset}:",
+            reply_markup=remove_condition_menu(asset, conditions)
+        )
+
+    elif data.startswith("delcond_"):
+        _, asset, cid = data.split("_")
+
+        user = db.get_document(
+            database_id=config.APPWRITE_DB,
+            collection_id=config.APPWRITE_COLLECTION,
+            document_id=chat_id
+        )
+
+        conditions = user.get("conditions", {})
+
+        if asset in conditions:
+            conditions[asset] = [c for c in conditions[asset] if c["id"] != cid]
+
+        db.update_document(
+            database_id=config.APPWRITE_DB,
+            collection_id=config.APPWRITE_COLLECTION,
+            document_id=chat_id,
+            data={"conditions": conditions}
+        )
+
+        query.edit_message_text("❌ Condition removed")
 
     elif data.data == "condition_settings":
         user = db.get_document(
