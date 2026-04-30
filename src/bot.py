@@ -58,7 +58,8 @@ def start(update, context):
                 "chat_id": chat_id,
                 "plan": "free",
                 "assets": [],
-                "interval": 60
+                "interval": 60,
+                "conditions": {}
             }
         )
 
