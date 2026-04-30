@@ -67,6 +67,13 @@ def start(update, context):
         reply_markup=main_menu()
     )
 
+# ---------------- Menu ----------------
+def menu(update, context):
+    update.message.reply_text(
+        "Main Menu",
+        reply_markup=main_menu()
+    )
+
 # ---------------- BUTTON ----------------
 def button(update, context):
     query = update.callback_query
@@ -265,6 +272,13 @@ def button(update, context):
         )
 
         assets = user.get("assets", [])
+
+        if not assets:
+            query.edit_message_text(
+                "⚠ You haven't selected any assets yet.\n\nPlease select assets first.",
+                reply_markup=asset_menu()
+            )
+            return
 
         query.edit_message_text(
             "Select asset:",
