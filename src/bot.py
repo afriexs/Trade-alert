@@ -257,7 +257,7 @@ def button(update, context):
 
         query.edit_message_text("❌ Condition removed")
 
-    elif data.data == "condition_settings":
+    elif data == "condition_settings":
         user = db.get_document(
             database_id=config.APPWRITE_DB,
             collection_id=config.APPWRITE_COLLECTION,
