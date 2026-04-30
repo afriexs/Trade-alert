@@ -165,8 +165,43 @@ def button(update, context):
 
         query.edit_message_text(f"✅ Interval set to {minutes} mins", reply_markup=main_menu())
 
-    elif query.data == "condition_settings":
-        query.edit_message_text("Send conditions like:\nBTC > 2%\nETH < -1%")
+    elif data.startswith("cond_asset_"):
+        asset = data.split("_")[2]
+
+        user = db.get_document(
+            database_id=config.APPWRITE_DB,
+            collection_id=config.APPWRITE_COLLECTION,
+            document_id=chat_id
+        )
+
+        conditions = user.get("conditions", {}).get(asset, [])
+
+        query.edit_message_text(
+            f"{asset} Conditions:",
+            reply_markup=condition_list_menu(asset, conditions)
+        )
+
+    elif data.startswith("addcond_"):
+        asset = data.split("_")[1]
+
+        query.edit_message_text(
+            f"{asset} - Choose type:",
+            reply_markup=add_condition_type_menu(asset)
+        )
+
+    elif data.data == "condition_settings":
+        user = db.get_document(
+            database_id=config.APPWRITE_DB,
+            collection_id=config.APPWRITE_COLLECTION,
+            document_id=chat_id
+        )
+
+        assets = user.get("assets", [])
+
+        query.edit_message_text(
+            "Select asset:",
+            reply_markup=condition_asset_menu(assets)
+        )
 
     elif query.data == "back_main":
         query.edit_message_text("Main Menu:", reply_markup=main_menu())
