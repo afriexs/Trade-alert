@@ -182,7 +182,7 @@ def button(update, context):
             database_id=config.APPWRITE_DB,
             collection_id=config.APPWRITE_COLLECTION,
             document_id=chat_id
-        )
+        ).dict()
 
         conditions = user.get("conditions", {}).get(asset, [])
 
@@ -206,7 +206,7 @@ def button(update, context):
             database_id=config.APPWRITE_DB,
             collection_id=config.APPWRITE_COLLECTION,
             document_id=chat_id
-        )
+        ).dict()
 
         conditions = user.get("conditions", {})
 
@@ -283,9 +283,9 @@ def button(update, context):
             database_id=config.APPWRITE_DB,
             collection_id=config.APPWRITE_COLLECTION,
             document_id=chat_id
-        )
+        ).dict()
 
-        assets = user.get_document("assets", [])
+        assets = user.get("assets", [])
         print("passed assets:", assets)
 
         if not assets:
