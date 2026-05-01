@@ -285,7 +285,7 @@ def button(update, context):
             document_id=chat_id
         )
 
-        assets = user.get("assets", [])
+        assets = user.get_document("assets", [])
         print("passed assets:", assets)
 
         if not assets:
