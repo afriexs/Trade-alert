@@ -279,10 +279,10 @@ def button(update, context):
         )
 
     elif data == "condition_settings":
-        user = db.get_document(
+        user = db.get_row(
             database_id=config.APPWRITE_DB,
-            collection_id=config.APPWRITE_COLLECTION,
-            document_id=chat_id
+            table_id=config.APPWRITE_COLLECTION,
+            row_id=chat_id
         )
 
         assets = user.get("assets", [])
