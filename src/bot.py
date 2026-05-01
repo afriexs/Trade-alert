@@ -145,8 +145,8 @@ def button(update, context):
             database_id=config.APPWRITE_DB,
             collection_id=config.APPWRITE_COLLECTION,
             document_id=chat_id,
-            data={"assets": selected}
-        )
+            data={"assets": json.dumps(selected)
+        }
 
         query.message.edit_text(
             f"✅ Saved Assets:\n\n{', '.join(selected) if selected else 'None'}",
@@ -283,9 +283,9 @@ def button(update, context):
             database_id=config.APPWRITE_DB,
             collection_id=config.APPWRITE_COLLECTION,
             document_id=chat_id
-        ).dict()
+        )
 
-        assets = user.get("assets", [])
+        assets = json.loads(user["assets"]) if user.get("assets") else []
         print("passed assets:", assets)
 
         if not assets:
