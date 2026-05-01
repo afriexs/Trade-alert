@@ -184,7 +184,7 @@ def button(update, context):
             document_id=chat_id
         ).dict()
 
-        conditions = user.get("conditions", {}).get(asset, [])
+        conditions = user.data.get("conditions", {}).data.get(asset, [])
 
         query.edit_message_text(
             f"{asset} Conditions:",
@@ -271,7 +271,7 @@ def button(update, context):
         )
 
         # 🔥 IMPORTANT: reload updated list
-        updated_conditions = conditions.get(asset, [])
+        updated_conditions = conditions.data.get(asset, [])
 
         query.edit_message_text(
             f"{asset} Conditions:",
