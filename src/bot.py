@@ -145,7 +145,7 @@ def button(update, context):
             database_id=config.APPWRITE_DB,
             collection_id=config.APPWRITE_COLLECTION,
             document_id=chat_id,
-            data={"assets": json.dumps(selected)
+            data={"assets": json.dumps(selected)}
         )
 
         query.message.edit_text(
