@@ -1,7 +1,6 @@
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 from telegram import Update
 from ui import main_menu, asset_menu, upgrade_menu, settings_menu, interval_menu, crypto_list_menu, forex_list_menu, condition_asset_menu, condition_list_menu, remove_condition_menu, add_condition_type_menu
-from appwrite_client import db
 from appwrite_client import tables
 from rate_history import get_top_movers
 import config, time, traceback, sys, os, json
