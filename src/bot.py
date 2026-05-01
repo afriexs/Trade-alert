@@ -286,6 +286,7 @@ def button(update, context):
         )
 
         assets = user.get("assets", [])
+        print("passed)
 
         if not assets:
             query.edit_message_text(
