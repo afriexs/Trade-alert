@@ -10,7 +10,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: srcs
+        working-directory: src
 
     steps:
       - name: Checkout repo
