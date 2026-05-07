@@ -27,6 +27,7 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.py
+        
 
       - name: Run bot
         run: python bot.py
