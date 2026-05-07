@@ -145,9 +145,9 @@ def button(update, context):
             database_id=config.APPWRITE_DB,
             collection_id=config.APPWRITE_COLLECTION,
             document_id=chat_id,
-            data={"assets": json.dumps(selected)}
+            data={"assets": selected}
         )
-
+        
         query.message.edit_text(
             f"✅ Saved Assets:\n\n{', '.join(selected) if selected else 'None'}",
             reply_markup=main_menu()
@@ -182,9 +182,9 @@ def button(update, context):
             database_id=config.APPWRITE_DB,
             collection_id=config.APPWRITE_COLLECTION,
             document_id=chat_id
-        ).dict()
+        )
 
-        conditions = user.data.get("conditions", {}).data.get(asset, [])
+        conditions = user.get("conditions", {}).get(asset, [])
 
         query.edit_message_text(
             f"{asset} Conditions:",
@@ -206,7 +206,7 @@ def button(update, context):
             database_id=config.APPWRITE_DB,
             collection_id=config.APPWRITE_COLLECTION,
             document_id=chat_id
-        ).dict()
+        )
 
         conditions = user.get("conditions", {})
 
@@ -271,7 +271,7 @@ def button(update, context):
         )
 
         # 🔥 IMPORTANT: reload updated list
-        updated_conditions = conditions.data.get(asset, [])
+        updated_conditions = conditions.get(asset, [])
 
         query.edit_message_text(
             f"{asset} Conditions:",
@@ -279,14 +279,14 @@ def button(update, context):
         )
 
     elif data == "condition_settings":
-        user = db.getDocument(
+        user = db.get_document(
             database_id=config.APPWRITE_DB,
             collection_id=config.APPWRITE_COLLECTION,
             document_id=chat_id
         )
         #databases.getDocument(DB_ID, FORMS, fid);
 
-        assets = json.loads(user["assets"]) if user.get("assets") else [print("not working")]
+        assets = user.get("assets", [])
         print("passed assets:", assets)
 
         if not assets:
