@@ -24,9 +24,6 @@ jobs:
           echo "APPWRITE_DB=${{ secrets.APPWRITE_DB }}" >> $GITHUB_ENV
           echo "APPWRITE_COLLECTION=${{ secrets.APPWRITE_COLLECTION }}" >> $GITHUB_ENV
           echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> $GITHUB_ENV
-
-      - name: Install dependencies
-        run: pip install -r requirements.py
         
 
       - name: Run bot
