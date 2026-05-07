@@ -1,0 +1,32 @@
+name: Run Telegram Bot
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: src
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set environment variables
+        run: |
+          echo "APPWRITE_ENDPOINT=${{ secrets.APPWRITE_ENDPOINT }}" >> $GITHUB_ENV
+          echo "APPWRITE_PROJECT=${{ secrets.APPWRITE_PROJECT }}" >> $GITHUB_ENV
+          echo "APPWRITE_API_KEY=${{ secrets.APPWRITE_API_KEY }}" >> $GITHUB_ENV
+          echo "APPWRITE_DB=${{ secrets.APPWRITE_DB }}" >> $GITHUB_ENV
+          echo "APPWRITE_COLLECTION=${{ secrets.APPWRITE_COLLECTION }}" >> $GITHUB_ENV
+          echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run bot
+        run: python bot.py
