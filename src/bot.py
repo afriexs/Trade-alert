@@ -279,7 +279,7 @@ def button(update, context):
         )
 
     elif data == "condition_settings":
-        user = db.get_document(
+        user = tablesDB.get_row(
             database_id=config.APPWRITE_DB,
             collection_id=config.APPWRITE_COLLECTION,
             document_id=chat_id
