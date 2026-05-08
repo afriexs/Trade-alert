@@ -1,6 +1,6 @@
 from appwrite.client import Client
 from appwrite.services.databases import Databases
-from appwrite.services.tablesDB import TablesDB
+from appwrite.services.tables_db import TablesDB
 import config
 
 client = Client()
