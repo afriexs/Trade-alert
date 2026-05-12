@@ -333,7 +333,7 @@ def button(update, context):
 
             return
 
-        assets = user.assets([])
+        assets = user.getRow([])
         #user = get_user(chat_id)
 
         if not assets:
