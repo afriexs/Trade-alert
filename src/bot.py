@@ -333,7 +333,7 @@ def button(update, context):
 
             return
 
-        assets = user.getRow("assets", [])
+        assets = user.get_row("assets", [])
 
         if not assets:
 
