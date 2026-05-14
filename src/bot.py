@@ -335,9 +335,10 @@ def button(update, context):
 
         #assets = user.get("assets", [])
         #user = get_user(chat_id)
-        print(user)
 
-        assets = user.get("assets", {})
+       # assets = user.get("assets", {})
+        assets = user.data.assets
+        print(assets)
 
         if not assets:
 
