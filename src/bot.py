@@ -367,7 +367,8 @@ def button(update, context):
 
         user = get_user(chat_id)
 
-        conditions = user.data.get("conditions", {})
+        #conditions = user.data.get("conditions", {})
+        conditions = user.data.get("conditions") or {}
 
         asset_conditions = conditions.get(asset, [])
 
@@ -402,7 +403,8 @@ def button(update, context):
 
         user = get_user(chat_id)
 
-        conditions = user.data.get("conditions", {})
+        #conditions = user.data.get("conditions", {})
+        conditions = user.data.get("conditions") or {}
 
         if asset not in conditions:
             conditions[asset] = []
@@ -437,7 +439,8 @@ def button(update, context):
 
         user = get_user(chat_id)
 
-        conditions = user.data.get("conditions", {})
+        #conditions = user.data.get("conditions", {})
+        conditions = user.data.get("conditions") or {}
 
         asset_conditions = conditions.get(asset, [])
 
@@ -462,7 +465,8 @@ def button(update, context):
 
         user = get_user(chat_id)
 
-        conditions = user.data.get("conditions", {})
+        #conditions = user.data.get("conditions", {})
+        conditions = user.data.get("conditions") or {}
 
         if asset in conditions:
 
