@@ -370,7 +370,7 @@ def button(update, context):
         #conditions = user.data.get("conditions", {})
         conditions = user.data.get("conditions") or {}
 
-        asset_conditions = conditions.get(asset) or []
+        asset_conditions = conditions.data.get(asset) or []
 
         query.message.edit_text(
             f"{asset} Conditions:",
