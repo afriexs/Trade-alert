@@ -405,39 +405,30 @@ def button(update, context):
         user = get_user(chat_id)
 
         #conditions = user.data.get("conditions", {})
+        conditions = user.data.get("conditions") or {}
 
-        # Reading - deserialize each string back to a dict
-        raw_conditions = user.data.get("conditions") or []
-        conditions = {}
-        for item in raw_conditions:
-            parsed = json.loads(item)
-            asset_key = parsed["asset"]
-            if asset_key not in conditions:
-                conditions[asset_key] = []
-            conditions[asset_key].append(parsed)
-
-        # Add the new condition
         if asset not in conditions:
             conditions[asset] = []
 
         new_condition = {
             "id": str(uuid.uuid4())[:6],
-            "asset": asset,
             "type": cond_type,
             "value": 2
         }
 
         conditions[asset].append(new_condition)
 
-        # Writing - serialize back to a list of JSON strings
-        serialized = []
-        for asset_key, cond_list in conditions.items():
-            for c in cond_list:
-                serialized.append(json.dumps(c))
-
         update_user(chat_id, {
-            "conditions": serialized
+            "conditions": conditions
         })
+
+        query.message.edit_text(
+            f"✅ Added condition for {asset}",
+            reply_markup=condition_list_menu(
+                asset,
+                conditions[asset]
+            )
+        )
 
     # =====================================================
     # REMOVE CONDITION MENU
