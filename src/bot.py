@@ -23,6 +23,7 @@ import time
 import traceback
 import os
 import uuid
+import json
 
 # =========================================================
 # STARTUP
@@ -367,16 +368,21 @@ def button(update, context):
 
         user = get_user(chat_id)
 
-        #conditions = user.data.get("conditions", {})
-        conditions = user.data.get("conditions") or {}
+        raw_conditions = user.data.get("conditions") or []
+        conditions = {}
+        for item in raw_conditions:
+            parsed = json.loads(item)
+            asset_key = parsed["asset"]
+            if asset_key not in conditions:
+                conditions[asset_key] = []
+            conditions[asset_key].append(parsed)
 
-        asset_conditions = conditions.data.get(asset) or []
+        asset_conditions = conditions.get(asset) or []
 
         query.message.edit_text(
             f"{asset} Conditions:",
             reply_markup=condition_list_menu(asset, asset_conditions)
         )
-
     # =====================================================
     # ADD CONDITION
     # =====================================================
