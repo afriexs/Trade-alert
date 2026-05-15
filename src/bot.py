@@ -369,7 +369,7 @@ def button(update, context):
 
         conditions = user.data.get("conditions", {})
 
-        asset_conditions = conditions.data.get(asset, [])
+        asset_conditions = conditions.get(asset, [])
 
         query.message.edit_text(
             f"{asset} Conditions:",
@@ -439,7 +439,7 @@ def button(update, context):
 
         conditions = user.data.get("conditions", {})
 
-        asset_conditions = conditions.data.get(asset, [])
+        asset_conditions = conditions.get(asset, [])
 
         query.message.edit_text(
             f"Remove condition for {asset}:",
